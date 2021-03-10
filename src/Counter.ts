@@ -20,4 +20,5 @@ export let counter =  new Counter();
 setInterval(()=>{
     counter.increment(); 
     counter.actions.increment(); 
+    counter.update(counter.increment)
 }, 1000); 

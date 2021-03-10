@@ -5,6 +5,7 @@ import  {  useSubscribe } from "./ActionStore";
 import {counter} from "./Counter";
 export default function App() {
   useSubscribe([counter]);
-  return <div className="App">{counter.count}</div>;
+  console.log("re rendered ");
+  return <div className="App">test{ Math.random()} {counter.count}</div>;
 }
 

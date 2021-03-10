@@ -54,7 +54,7 @@ export default class ActionStore {
     //if (method && typeof method === "function") {
     //let label = Object.keys(this).findIndex((key) => this[key] === method);
     //console.log(Object.keys(this)[label], props, this);
-    method && method(...props);
+    method && method.apply(this, props);
     this._onUpdate && this._onUpdate();
     this.stateChanged(throttle, updateSiblings);
     // }
