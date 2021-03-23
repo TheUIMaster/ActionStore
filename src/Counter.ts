@@ -9,6 +9,7 @@ class Counter extends ActionStore {
 
   @action
   increment () {
+    // mutating the object
     this.#count++;
   }
   
@@ -19,6 +20,6 @@ export let counter =  new Counter();
 
 setInterval(()=>{
     counter.increment(); 
-    counter.actions.increment(); 
-    counter.update(counter.increment)
+    console.log(counter.count);
 }, 1000); 
+

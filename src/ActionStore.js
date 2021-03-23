@@ -22,15 +22,6 @@ export default class ActionStore {
   constructor() {
     this.siblings.push(this);
   }
-  // static decorate= (obj)=>{
-  //   return Object.create(new ActionStore(), obj)
-  // }
-
-  // get actions (){
-  //   return {
-  //     increment: this.increment
-  //   }
-  // }
   get actions() {
     this.update();
     return this;
@@ -50,14 +41,9 @@ export default class ActionStore {
     }
   };
   update = (method, props = [], throttle = 100, updateSiblings = false) => {
-    // all changes of state go through this function:
-    //if (method && typeof method === "function") {
-    //let label = Object.keys(this).findIndex((key) => this[key] === method);
-    //console.log(Object.keys(this)[label], props, this);
     method && method.apply(this, props);
     this._onUpdate && this._onUpdate();
     this.stateChanged(throttle, updateSiblings);
-    // }
   };
   updateAll = () => {};
   unSubscribe = (label) => {
