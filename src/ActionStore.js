@@ -2,72 +2,64 @@ import { useState, useEffect } from "react";
 
 export const action = function (a, b, c) {
   //console.log(c)
-  if(typeof a === "object"){
-      
-  console.log(a, b, c);
-  let method = c.value;
-  c.value = function () {
-    console.log("add list from action");
-    method.call(this);
-    this.update();
-  };
-  return c;
-}
-else{
-    
-}
+  if (typeof a === "object") {
+    console.log(a, b, c);
+    let method = c.value;
+    c.value = function () {
+      console.log("add list from action");
+      method.call(this);
+      update.call(this);
+      return this;
+    };
+    return c;
+  } else {
+  }
 };
 
 export default class ActionStore {
-  constructor() {
-    this.siblings.push(this);
-  }
-  get actions() {
-    this.update();
-    return this;
-  }
-
-  get state() {
-    return this;
-  }
-
-  subscriptions = [];
-  siblings = [];
-  clearTimeOut = null;
-  subScribe = (func, label) => {
-    let subscription = this.subscriptions.find((d) => d.label === label);
-    if (!subscription) {
-      this.subscriptions.push({ label: label, action: func });
-    }
-  };
-  update = (method, props = [], throttle = 100, updateSiblings = false) => {
-    method && method.apply(this, props);
-    this._onUpdate && this._onUpdate();
-    this.stateChanged(throttle, updateSiblings);
-  };
-  updateAll = () => {};
-  unSubscribe = (label) => {
-    this.subscriptions = this.subscriptions.filter((d) => d.label !== label);
-  };
-  stateChanged = (throttle, updateSiblings) => {
-    if (!this.clearTimeOut) {
-      this.clearTimeOut = window.setTimeout(() => {
-        let subScriptions = [];
-
-        if (!updateSiblings) subScriptions = this.subscriptions;
-        else
-          subScriptions = this.siblings.reduce((a, b, []) =>
-            a.push(b.subscriptions)
-          );
-
-        subScriptions.forEach((d) => d.action && d.action());
-
-        this.clearTimeOut = null;
-      }, throttle);
-    }
-  };
+  _ = { subscriptions: [], clearTimeOut: null };
 }
 
+export let subScribe = function (func, label) {
+  debugger;
+  let subscription = this._.subscriptions.find((d) => d.label === label);
+  if (!subscription) {
+    this._.subscriptions.push({ label: label, action: func });
+  }
+};
+export let update = function (
+  method,
+  props = [],
+  throttle = 100,
+  updateSiblings = false
+) {
+  method && method.apply(this, props);
+  this._onUpdate && this._onUpdate();
+  stateChanged.call(this, throttle, updateSiblings);
+};
+export let updateAll = () => {};
+export let unSubscribe = function (label) {
+  this._.subscriptions = this._.subscriptions.filter((d) => d.label !== label);
+};
+export let stateChanged = function (throttle, updateSiblings) {
+  if (!this._.clearTimeOut) {
+    this._.clearTimeOut = window.setTimeout(() => {
+      let subScriptions = [];
+
+      if (!updateSiblings) subScriptions = this._.subscriptions;
+      else
+        subScriptions = this.siblings.reduce((a, b, []) =>
+          a.push(b.subscriptions)
+        );
+
+      subScriptions.forEach(
+        (d) => d.action && typeof d.action === "function" && d.action()
+      );
+
+      this._.clearTimeOut = null;
+    }, throttle);
+  }
+};
 export const getRandom = (length) => {
   var result = "";
   var characters =
@@ -79,30 +71,30 @@ export const getRandom = (length) => {
   return result;
 };
 
-export const useSubscribe = (props) => {
+export const useSubscribe = function (props) {
   const [refresh, setRefresh] = useState(0);
   const [uniqueCode] = useState(getRandom(8));
   useEffect(() => {
     props.forEach((item) => {
-      item.subScribe(() => setRefresh(refresh + 1), uniqueCode);
+      subScribe.call(item, () => setRefresh(refresh + 1), uniqueCode);
     });
     return function () {
       // clean up
-      props.forEach((item) => item.unSubscribe(uniqueCode));
+      props.forEach((item) => unSubscribe.call(item, uniqueCode));
     };
   }, [refresh]);
 };
 
-export const subscribeLit = (props, requestUpdate) => {
+export const subscribeLit = function (props, requestUpdate) {
   //const [refresh, setRefresh] = useState(0);
   const uniqueCode = getRandom(8);
   //useEffect(() => {
   props.forEach((item) => {
-    item.subScribe(() => requestUpdate(), uniqueCode);
+    subScribe.call(item, () => requestUpdate(), uniqueCode);
   });
   return function () {
     // clean up
-    props.forEach((item) => item.unSubscribe(uniqueCode));
+    props.forEach((item) => unSubscribe.call(item, uniqueCode));
   };
   //}, [refresh]);
 };
@@ -118,20 +110,19 @@ export class Action {
       if (!label) {
         label = getRandom(10);
       }
-      let item = this.subscriptions.find((d) => d.label === label);
+      let item = this._.subscriptions.find((d) => d.label === label);
       if (!item) {
-        this.subscriptions.push({ label, action: func });
+        this._.subscriptions.push({ label, action: func });
       }
-      return () => {
-        this.unSubscribe(label);
-      };
     }
     return new Error("function needs to be passed as first parameter");
   };
   unSubscribe = (label) => {
-    this.subscriptions = this.subscriptions.filter((d) => d.label !== label);
+    this._.subscriptions = this._.subscriptions.filter(
+      (d) => d.label !== label
+    );
   };
   run = (...params) => {
-    this.subscriptions.forEach((d) => d.action(...params));
+    this._.subscriptions.forEach((d) => d.action(...params));
   };
 }

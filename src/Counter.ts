@@ -1,25 +1,23 @@
+
 import ActionStore, { action } from "./ActionStore";
 
 class Counter extends ActionStore {
   #count = 0;
 
+  
   get count() {
     return this.#count;
   }
 
   @action
-  increment () {
+  increment() {
     // mutating the object
     this.#count++;
+    return this;
   }
-  
-  
 }
-
-export let counter =  new Counter();
-
-setInterval(()=>{
-    counter.increment(); 
-    console.log(counter.count);
-}, 1000); 
-
+export let counter = new Counter();
+setInterval(() => {
+  console.log(counter.increment().increment());
+  console.log(counter.count);
+}, 1000);
